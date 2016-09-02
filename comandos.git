@@ -1,0 +1,126 @@
+comandos de git:
+
+git checkout name.file 
+    -si hice un cambio en name.file que no me deberia, y...
+        1) tengo un commit hecho anteriormente
+        2) no lo tengo ese archivo agregado con add al staging area
+...entonces este comando sirve para descartar esos cambios y volver los archivos reales como estaban antes. 
+
+git reset HEAD 
+    -si encambio...
+        2) tengo el archivo agregado al staging area
+...entonces primero debo quitarlo de ahi con este comando, para luego poder volver a su estado anterior con checkout.
+
+
+
+git log --oneline --decorate | cat
+    --oneline para  que muestre cada commit en una linea.
+    --decorate para que nos muestre en que rama estamos y cual es el head.
+    | cat para que lo imprima.
+
+git reset codigo/de/commit
+    -(es un comando destructivo, no usar en un entorno compartido con otras personas.)
+    -para volver a un commit anterior, se eliminan los commits despues de ese. 
+    -los archivos estan modificados todavia pero se puede volver, usando el checkout para descartar esos cambios en los archivos.
+
+git reset --hard codigo/de/commit
+    -(elimina los commits despues de ese, descarta los cambios que hayan sido realizados despues de ese commit, y ahora el HEAD apunta a ese commit.)
+
+git reset --soft codigo/de/commit
+    -(todo lo contrario. elimina los commits despues de ese, pero no descarta los cambios que hayan sido realizados despues de ese commit, estos quedan en el stage.)
+
+
+
+git commit --amend -m "New commit message"
+    -corrige el mensaje del ultimo commit.
+
+
+git revert codigo/de/commit 
+    -aplica lo que se habia agregado a la hora de hacer ese commit, pero a la inversa, haciendo que el efecto de ese commit sea nulo.
+    -tambien crea un commit nuevo con el menasaje "revert descripcion/commit"
+
+git revert codigo/de/commit --no-commit
+    -revierte las modificaciones hechas en ese commit y deja estos nuevos cambios en el directorio de trabajo sin commitear. 
+
+git log --oneline --decorate --graph 
+    --oneline para  que muestre cada commit en una linea.
+    --decorate para que nos muestre en que rama estamos y cual es el head.
+    --graph muestra el grafo con las ramas
+
+
+git branch 
+    -muestra la lista de ramas que tenemos creadas 
+
+git branch "nombre del nuevo branch"
+    -crea un nuevo branch
+    
+git checkout "nombre de un branch"
+    -cambia de rama
+
+git checkout -b "nombre de una nueva rama"
+    -crea la rama y se mueve a ella.
+
+git branch -m nombre_actual nombre_nuevo
+    -cambia de nombre una rama
+    
+git branch -d nombre_de_una_rama_existente
+    -elimina esa rama
+
+git branch (o lo que sea) -h
+    -help de ese comando
+
+git log --oneline --decorate --all --graph
+    --oneline para  que muestre cada commit en una linea.
+    --decorate para que nos muestre en que rama estamos y cual es el head.
+    --graph muestra el grafo con las ramas
+    --all muestra todos los commits no solo los que hay en esa rama o solo los ultimos.
+
+MERGE
+
+git merge nombre_rama_a_fusionar
+    -hacerlo estando parado en master.
+    
+FAST-FORDWARD (avance rapido)
+    esta estrategia consiste en que git tiene como tarea fusionar 2 ramas pero:
+	1) como ve que master no tuvo ningun cambio desde que se desprendio la otra rama de ella
+	2) y la rama que se desprendio de ella si fue modificada.
+	- Eso quiere decir que al fusionarlas quedaria tal cual como la rama.
+	- como resultado decide que master apunte a la rama que tenia las modificaciones y listo.
+
+RECURSIVE
+    esta estrategia fusiona 2 ramas pero:
+	1) en las que las 2 tienen un ancestro en comun.
+	2) y las dos tienen modificaciones.
+	- para eso git va a mirar el ancestro, compararlo con una de las ramas ver que se agrego o quito. 
+	   luego va a hacer lo mismo con la otra rama, y luego tratar de agregar a una de las ramas lo que se modifico en la otra.
+	-Esto puede tener "conflictos" que tenemos que resolver si las 2 ramas modifican de manera diferente una misma area.
+	*para fusionar dos ramas primero hay que pararse en el ancestro y hacer un merge a una de las ramas 
+	   (probablemente lo haga con fast-fordward). Y luego hacer desde ese nuevo commit que ahora es master un merge a la otra rama.
+	   (y ahi si lo hara de forma recursiva).
+	
+
+CONFLICTOS
+    si hacemos un marge de dos ramas en las que se modifico la misma linea de manera diferente, cuando hagamos un merge de la forma anterior
+       git nos avisara que hubo un conflicto y nos dejara los archivos con las 2 lineas en cuestion de una manera apta para que nosotros
+       nosotros lo editemos a gusto. Una vez que lo editemos debemos hacer git add, git commit y un mensaje y listo. (es decir git hizo todo 
+       hasta el conflicto y le falto resolver eso antes de hacer el commit final). 
+
+
+En la carpeta .git/refs se encuentran los archivos que contienen los apuntadores a commits. Estos son el Heads, los tags, las ramas...
+en refs/heads estan los archivos con los nombres de las ramas, en los que cada uno contiene el hash del commit de cada cabeza de rama.
+exactamente lo mismo pasa con refs/tags la unica diferencia es que los heads de las ramas se van a ir moviendo porque uno va haciendo diferentes comits a medida que avanza en el proyecto, y por ahi no tanto en un tag.
+
+Pero tambien existe otro tipo de tag que puede contener mas informacion este es el tag anotado.
+
+git tag -a "nombre_tag"
+	-crea un tag anotado.
+		ahi se va a abrir el editor para escribir una descripcion
+git tag -l "filtro" 
+	-lista los tags
+	-en filtro puede ir por ej: "v1.0.*"
+
+git tag -d nombre_tag
+	-elimina un tag
+ 
+git show nombre_tag 
+	-muestra la informacion de un tag.. si es un tag anotado mostrara mas informacion
